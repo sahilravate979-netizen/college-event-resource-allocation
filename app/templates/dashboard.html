@@ -1,0 +1,793 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | CampusHub{% endblock %}
+
+{% block content %}
+
+
+<!-- ================= WELCOME SECTION ================= -->
+
+<div class="mb-8">
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+
+        <div>
+
+            <div class="flex items-center gap-2 mb-2">
+
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+
+                <span class="text-sm font-medium text-green-600">
+                    System Online
+                </span>
+
+            </div>
+
+
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">
+                Welcome to your Dashboard 👋
+            </h1>
+
+            <p class="text-gray-500 mt-2">
+                Manage your college events and resources efficiently.
+            </p>
+
+        </div>
+
+
+        <a href="{{ url_for('events.new_event') }}"
+           class="inline-flex items-center justify-center gap-2
+                  bg-gradient-to-r from-blue-600 to-indigo-600
+                  text-white px-6 py-3 rounded-xl
+                  shadow-lg hover:shadow-xl
+                  hover:from-blue-700 hover:to-indigo-700
+                  transition">
+
+            <span class="text-xl">＋</span>
+
+            Create Event
+
+        </a>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= STATISTICS ================= -->
+
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+
+
+    <!-- TOTAL EVENTS -->
+
+    {% set total_events = namespace(value=0) %}
+
+    {% for status, count in event_counts.items() %}
+        {% set total_events.value = total_events.value + count %}
+    {% endfor %}
+
+
+    <div class="card bg-white rounded-2xl p-6 shadow-sm border border-white">
+
+        <div class="flex items-center justify-between">
+
+            <div>
+
+                <p class="text-sm text-gray-500">
+                    Total Events
+                </p>
+
+                <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                    {{ total_events.value }}
+                </h2>
+
+                <p class="text-xs text-blue-500 mt-2">
+                    All registered events
+                </p>
+
+            </div>
+
+
+            <div class="w-14 h-14 rounded-2xl
+                        bg-gradient-to-br from-blue-500 to-blue-600
+                        text-white flex items-center justify-center
+                        text-2xl shadow-lg">
+
+                📅
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- UPCOMING EVENTS -->
+
+    <div class="card bg-white rounded-2xl p-6 shadow-sm border border-white">
+
+        <div class="flex items-center justify-between">
+
+            <div>
+
+                <p class="text-sm text-gray-500">
+                    Upcoming Events
+                </p>
+
+                <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                    {{ upcoming_events|length }}
+                </h2>
+
+                <p class="text-xs text-purple-500 mt-2">
+                    Scheduled events
+                </p>
+
+            </div>
+
+
+            <div class="w-14 h-14 rounded-2xl
+                        bg-gradient-to-br from-purple-500 to-purple-600
+                        text-white flex items-center justify-center
+                        text-2xl shadow-lg">
+
+                🗓️
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- PENDING REQUESTS -->
+
+    <div class="card bg-white rounded-2xl p-6 shadow-sm border border-white">
+
+        <div class="flex items-center justify-between">
+
+            <div>
+
+                <p class="text-sm text-gray-500">
+                    Pending Requests
+                </p>
+
+                <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                    {{ pending_requests|length }}
+                </h2>
+
+                <p class="text-xs text-amber-500 mt-2">
+                    Requires attention
+                </p>
+
+            </div>
+
+
+            <div class="w-14 h-14 rounded-2xl
+                        bg-gradient-to-br from-amber-400 to-orange-500
+                        text-white flex items-center justify-center
+                        text-2xl shadow-lg">
+
+                ⏳
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ACTIVE RESOURCES -->
+
+    <div class="card bg-white rounded-2xl p-6 shadow-sm border border-white">
+
+        <div class="flex items-center justify-between">
+
+            <div>
+
+                <p class="text-sm text-gray-500">
+                    Active Resources
+                </p>
+
+                <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                    {{ active_resources }}
+                </h2>
+
+                <p class="text-xs text-green-500 mt-2">
+                    {{ total_resources }} total resources
+                </p>
+
+            </div>
+
+
+            <div class="w-14 h-14 rounded-2xl
+                        bg-gradient-to-br from-emerald-500 to-green-600
+                        text-white flex items-center justify-center
+                        text-2xl shadow-lg">
+
+                🏢
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= MIDDLE SECTION ================= -->
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+
+
+    <!-- RESOURCE OVERVIEW -->
+
+    <div class="bg-white rounded-2xl shadow-sm p-6 xl:col-span-1">
+
+        <div class="flex items-center justify-between mb-6">
+
+            <div>
+
+                <h2 class="text-lg font-bold text-slate-800">
+                    Resource Overview
+                </h2>
+
+                <p class="text-sm text-gray-400">
+                    Resource availability
+                </p>
+
+            </div>
+
+            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                📦
+            </div>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div class="mb-6">
+
+            <div class="flex justify-between mb-2">
+
+                <span class="text-sm text-gray-500">
+                    Total Resources
+                </span>
+
+                <span class="font-semibold">
+                    {{ total_resources }}
+                </span>
+
+            </div>
+
+            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+
+                <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                     style="width: 100%">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ACTIVE -->
+
+        <div class="mb-6">
+
+            <div class="flex justify-between mb-2">
+
+                <span class="text-sm text-gray-500">
+                    Active
+                </span>
+
+                <span class="font-semibold text-green-600">
+                    {{ active_resources }}
+                </span>
+
+            </div>
+
+
+            {% if total_resources > 0 %}
+
+                {% set active_percentage =
+                    (active_resources / total_resources * 100)|round %}
+
+            {% else %}
+
+                {% set active_percentage = 0 %}
+
+            {% endif %}
+
+
+            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+
+                <div class="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"
+                     style="width: {{ active_percentage }}%">
+                </div>
+
+            </div>
+
+            <p class="text-xs text-gray-400 mt-2">
+                {{ active_percentage }}% active
+            </p>
+
+        </div>
+
+
+        <!-- INACTIVE -->
+
+        <div>
+
+            <div class="flex justify-between mb-2">
+
+                <span class="text-sm text-gray-500">
+                    Inactive
+                </span>
+
+                <span class="font-semibold text-red-500">
+                    {{ total_resources - active_resources }}
+                </span>
+
+            </div>
+
+
+            {% if total_resources > 0 %}
+
+                {% set inactive_percentage =
+                    ((total_resources - active_resources) / total_resources * 100)|round %}
+
+            {% else %}
+
+                {% set inactive_percentage = 0 %}
+
+            {% endif %}
+
+
+            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+
+                <div class="h-full bg-gradient-to-r from-red-400 to-rose-500 rounded-full"
+                     style="width: {{ inactive_percentage }}%">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <a href="{{ url_for('resources.list_resources') }}"
+           class="block text-center mt-7 bg-slate-50 hover:bg-blue-50
+                  text-blue-600 font-medium py-3 rounded-xl transition">
+
+            Manage Resources →
+
+        </a>
+
+    </div>
+
+
+
+    <!-- EVENT STATUS -->
+
+    <div class="bg-white rounded-2xl shadow-sm p-6 xl:col-span-2">
+
+        <div class="flex items-center justify-between mb-6">
+
+            <div>
+
+                <h2 class="text-lg font-bold text-slate-800">
+                    Event Status
+                </h2>
+
+                <p class="text-sm text-gray-400">
+                    Overview of event progress
+                </p>
+
+            </div>
+
+
+            <a href="{{ url_for('events.list_events') }}"
+               class="text-sm text-blue-600 hover:underline">
+
+                View All →
+
+            </a>
+
+        </div>
+
+
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+
+            {% for status, count in event_counts.items() %}
+
+
+                {% if status == "Approved" %}
+
+                    {% set bg = "bg-green-50" %}
+                    {% set text = "text-green-700" %}
+                    {% set icon = "✓" %}
+
+                {% elif status == "Pending" %}
+
+                    {% set bg = "bg-yellow-50" %}
+                    {% set text = "text-yellow-700" %}
+                    {% set icon = "⏳" %}
+
+                {% elif status == "Rejected" %}
+
+                    {% set bg = "bg-red-50" %}
+                    {% set text = "text-red-700" %}
+                    {% set icon = "✕" %}
+
+                {% elif status == "Cancelled" %}
+
+                    {% set bg = "bg-gray-50" %}
+                    {% set text = "text-gray-600" %}
+                    {% set icon = "⊘" %}
+
+                {% elif status == "Completed" %}
+
+                    {% set bg = "bg-blue-50" %}
+                    {% set text = "text-blue-700" %}
+                    {% set icon = "★" %}
+
+                {% else %}
+
+                    {% set bg = "bg-purple-50" %}
+                    {% set text = "text-purple-700" %}
+                    {% set icon = "📝" %}
+
+                {% endif %}
+
+
+                <div class="card {{ bg }} rounded-xl p-5">
+
+                    <div class="flex items-center justify-between">
+
+                        <span class="text-sm {{ text }} font-medium">
+                            {{ status }}
+                        </span>
+
+                        <span class="w-9 h-9 rounded-lg bg-white
+                                     flex items-center justify-center
+                                     {{ text }} shadow-sm">
+
+                            {{ icon }}
+
+                        </span>
+
+                    </div>
+
+
+                    <p class="text-3xl font-bold text-slate-800 mt-4">
+                        {{ count }}
+                    </p>
+
+                </div>
+
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= EVENTS + REQUESTS ================= -->
+
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+
+
+    <!-- UPCOMING EVENTS -->
+
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+
+            <div>
+
+                <h2 class="text-lg font-bold text-slate-800">
+                    Upcoming Events
+                </h2>
+
+                <p class="text-sm text-gray-400">
+                    Next scheduled events
+                </p>
+
+            </div>
+
+            <span class="text-2xl">
+                📅
+            </span>
+
+        </div>
+
+
+        {% if upcoming_events %}
+
+            <div class="divide-y divide-gray-100">
+
+                {% for event in upcoming_events %}
+
+                    <div class="p-5 hover:bg-slate-50 transition">
+
+                        <div class="flex justify-between gap-4">
+
+                            <div>
+
+                                <h3 class="font-semibold text-slate-800">
+                                    {{ event.name }}
+                                </h3>
+
+                                <p class="text-sm text-gray-500 mt-1">
+                                    👤 {{ event.organizer }}
+                                </p>
+
+                                <p class="text-sm text-gray-500 mt-1">
+                                    👥 {{ event.expected_attendance }} attendees
+                                </p>
+
+                            </div>
+
+
+                            {% if event.status == "Approved" %}
+
+                                <span class="h-fit px-3 py-1 rounded-full
+                                             text-xs font-semibold
+                                             bg-green-100 text-green-700">
+
+                                    Approved
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="h-fit px-3 py-1 rounded-full
+                                             text-xs font-semibold
+                                             bg-yellow-100 text-yellow-700">
+
+                                    Pending
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="flex items-center justify-between mt-4">
+
+                            <span class="text-xs text-gray-400">
+
+                                🕐 {{ event.start_time.strftime("%d %b %Y, %I:%M %p") }}
+
+                            </span>
+
+
+                            <a href="{{ url_for('events.view_event', event_id=event.id) }}"
+                               class="text-sm text-blue-600 font-medium hover:underline">
+
+                                View Event →
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="p-10 text-center">
+
+                <div class="text-4xl mb-3">
+                    📭
+                </div>
+
+                <p class="text-gray-500">
+                    No upcoming events.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+
+    <!-- PENDING REQUESTS -->
+
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+
+            <div>
+
+                <h2 class="text-lg font-bold text-slate-800">
+                    Pending Requests
+                </h2>
+
+                <p class="text-sm text-gray-400">
+                    Resource requests awaiting action
+                </p>
+
+            </div>
+
+            <span class="text-2xl">
+                📋
+            </span>
+
+        </div>
+
+
+        {% if pending_requests %}
+
+            <div class="divide-y divide-gray-100">
+
+                {% for request in pending_requests %}
+
+                    <div class="p-5 hover:bg-slate-50 transition">
+
+                        <div class="flex justify-between gap-4">
+
+                            <div>
+
+                                <h3 class="font-semibold text-slate-800">
+                                    Request #{{ request.id }}
+                                </h3>
+
+
+                                {% if request.event %}
+
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        📅 {{ request.event.name }}
+                                    </p>
+
+                                {% endif %}
+
+
+                                <p class="text-xs text-gray-400 mt-2">
+
+                                    Submitted:
+                                    {{ request.created_at.strftime("%d %b %Y, %I:%M %p") }}
+
+                                </p>
+
+                            </div>
+
+
+                            <span class="h-fit px-3 py-1 rounded-full
+                                         text-xs font-semibold
+                                         bg-yellow-100 text-yellow-700">
+
+                                Pending
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="text-right mt-4">
+
+                            <a href="{{ url_for('requests.request_details', request_id=request.id) }}"
+                               class="text-sm text-blue-600 font-medium hover:underline">
+
+                                Review Request →
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="p-10 text-center">
+
+                <div class="text-4xl mb-3">
+                    🎉
+                </div>
+
+                <p class="text-gray-500">
+                    No pending requests.
+                </p>
+
+                <p class="text-xs text-gray-400 mt-1">
+                    Everything is up to date.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= QUICK ACTIONS ================= -->
+
+<div class="bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 rounded-2xl shadow-xl p-6 md:p-8 text-white">
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+
+        <div>
+
+            <p class="text-blue-300 text-sm font-medium">
+                QUICK ACTIONS
+            </p>
+
+            <h2 class="text-2xl font-bold mt-1">
+                Manage Campus Resources
+            </h2>
+
+            <p class="text-slate-300 text-sm mt-2">
+                Quickly access the most important management tools.
+            </p>
+
+        </div>
+
+
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+
+
+            <a href="{{ url_for('events.new_event') }}"
+               class="bg-white/10 hover:bg-white/20
+                      border border-white/10
+                      rounded-xl px-5 py-3
+                      text-sm font-medium transition text-center">
+
+                📅 Create Event
+
+            </a>
+
+
+            <a href="{{ url_for('resources.new_resource') }}"
+               class="bg-white/10 hover:bg-white/20
+                      border border-white/10
+                      rounded-xl px-5 py-3
+                      text-sm font-medium transition text-center">
+
+                📦 Add Resource
+
+            </a>
+
+
+            <a href="{{ url_for('resources.availability') }}"
+               class="bg-white/10 hover:bg-white/20
+                      border border-white/10
+                      rounded-xl px-5 py-3
+                      text-sm font-medium transition text-center">
+
+                🔍 Availability
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

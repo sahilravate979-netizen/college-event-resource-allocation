@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Resources{% endblock %}
+
+{% block content %}
+
+<h1 class="text-2xl font-semibold mb-4">
+    Request Resources for an Event
+</h1>
+
+<form method="post"
+      class="bg-white rounded shadow p-6 max-w-2xl space-y-4">
+
+    <!-- EVENT -->
+    <div>
+        <label class="block text-sm font-medium mb-1">
+            Event
+        </label>
+
+        <select name="event_id"
+                class="w-full border rounded px-3 py-2"
+                required>
+
+            <option value="">
+                Select an approved event
+            </option>
+
+            {% for e in events %}
+
+            <option value="{{ e.id }}"
+                {{ 'selected' if selected_event and selected_event.id == e.id }}>
+
+                {{ e.name }}
+                —
+                {{ e.start_time.strftime('%d %b %Y') }}
+                (attendance: {{ e.expected_attendance }})
+
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+        {% if not events %}
+
+        <p class="text-xs text-amber-600 mt-1">
+            No approved events available yet —
+            an event must be Approved before requesting resources.
+        </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- DATE AND TIME -->
+
+    <div class="grid grid-cols-2 gap-4">
+
+        <div>
+
+            <label class="block text-sm font-medium mb-1">
+                Start Date/Time
+            </label>
+
+            <input type="datetime-local"
+                   name="start_time"
+                   value="{{ form_data.get('start_time','') if form_data else '' }}"
+                   class="w-full border rounded px-3 py-2"
+                   required>
+
+        </div>
+
+
+        <div>
+
+            <label class="block text-sm font-medium mb-1">
+                End Date/Time
+            </label>
+
+            <input type="datetime-local"
+                   name="end_time"
+                   value="{{ form_data.get('end_time','') if form_data else '' }}"
+                   class="w-full border rounded px-3 py-2"
+                   required>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESOURCES -->
+
+    <div>
+
+        <div class="flex items-center justify-between mb-2">
+
+            <label class="block text-sm font-medium">
+                Resources Needed
+            </label>
+
+            <button type="button"
+                    id="add-resource-row"
+                    class="text-sm text-blue-600 hover:underline">
+
+                + Add another resource
+
+            </button>
+
+        </div>
+
+
+        <div id="resource-rows" class="space-y-2">
+
+            <div class="resource-row flex gap-2">
+
+                <select name="resource_id[]"
+                        class="flex-1 border rounded px-3 py-2">
+
+                    <option value="">
+                        Select resource
+                    </option>
+
+                    {% for r in resources %}
+
+                    <option value="{{ r.id }}"
+                            data-type="{{ r.type }}">
+
+                        {{ r.name }}
+
+                        ({{ r.type }}
+
+                        {% if r.capacity %}
+                            , cap {{ r.capacity }}
+                        {% endif %}
+
+                        , qty {{ r.total_quantity }})
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <input type="hidden"
+                       name="resource_type[]"
+                       value="">
+
+
+                <input type="number"
+                       name="quantity[]"
+                       min="1"
+                       value="1"
+                       class="w-24 border rounded px-3 py-2"
+                       placeholder="Qty">
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ALTERNATIVE SUGGESTIONS -->
+
+    {% if suggestions %}
+
+    <div class="bg-amber-50 border border-amber-200 rounded p-4 text-sm space-y-2">
+
+        <p class="font-medium text-amber-800">
+            Suggested alternatives for unavailable/unsuitable resources:
+        </p>
+
+
+        {% for resource_id, alts in suggestions.items() %}
+
+            {% if alts %}
+
+            <ul class="list-disc list-inside">
+
+                {% for alt in alts %}
+
+                <li>
+
+                    {{ alt.resource.name }}
+
+                    ({{ alt.resource.type }}
+
+                    {% if alt.resource.capacity %}
+                        , cap {{ alt.resource.capacity }}
+                    {% endif %})
+
+                    —
+                    {{ alt.available_quantity }}
+                    available in this slot
+
+                </li>
+
+                {% endfor %}
+
+            </ul>
+
+            {% else %}
+
+            <p class="text-amber-700">
+                No suitable alternative found for one of the requested resources.
+            </p>
+
+            {% endif %}
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- SUBMIT -->
+
+    <div class="flex gap-3 pt-2">
+
+        <button type="submit"
+                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">
+
+            Submit Request
+
+        </button>
+
+    </div>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Details{% endblock %}
+
+{% block content %}
+
+<h1 class="text-2xl font-semibold mb-4">
+    Resource Request #{{ resource_request.id }}
+</h1>
+
+<!-- Request Information -->
+<div class="bg-white rounded shadow p-6 mb-6">
+
+    <h2 class="text-lg font-semibold mb-4">
+        Request Information
+    </h2>
+
+    <div class="space-y-2 text-sm">
+
+        <p>
+            <strong>Event:</strong>
+            {{ resource_request.event.name }}
+        </p>
+
+        <p>
+            <strong>Organizer:</strong>
+            {{ resource_request.event.organizer }}
+        </p>
+
+        <p>
+            <strong>Expected Attendance:</strong>
+            {{ resource_request.event.expected_attendance }}
+        </p>
+
+        <p>
+            <strong>Start:</strong>
+            {{ resource_request.start_time.strftime('%d %b %Y, %I:%M %p') }}
+        </p>
+
+        <p>
+            <strong>End:</strong>
+            {{ resource_request.end_time.strftime('%d %b %Y, %I:%M %p') }}
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+
+            <span class="px-2 py-1 rounded text-xs bg-gray-100">
+                {{ resource_request.status }}
+            </span>
+
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- Requested Resources -->
+<div class="bg-white rounded shadow p-6 mb-6">
+
+    <h2 class="text-lg font-semibold mb-4">
+        Requested Resources
+    </h2>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full text-sm">
+
+            <thead>
+
+                <tr class="border-b text-left">
+
+                    <th class="p-3">
+                        Resource
+                    </th>
+
+                    <th class="p-3">
+                        Type
+                    </th>
+
+                    <th class="p-3">
+                        Capacity
+                    </th>
+
+                    <th class="p-3">
+                        Quantity
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for item in resource_request.items %}
+
+                <tr class="border-b">
+
+                    <td class="p-3">
+                        {{ item.resource.name }}
+                    </td>
+
+                    <td class="p-3">
+                        {{ item.resource.type }}
+                    </td>
+
+                    <td class="p-3">
+
+                        {% if item.resource.capacity %}
+                            {{ item.resource.capacity }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+                    <td class="p-3">
+                        {{ item.quantity }}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="4"
+                        class="p-4 text-center text-gray-400">
+
+                        No resources requested.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- Actions -->
+
+<div class="flex flex-wrap gap-3">
+
+    {% if resource_request.status == 'Pending' %}
+
+    <form method="post"
+          action="{{ url_for('requests.approve_request', request_id=resource_request.id) }}">
+
+        <button
+            type="submit"
+            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">
+
+            Approve Request
+
+        </button>
+
+    </form>
+
+
+    <form method="post"
+          action="{{ url_for('requests.reject_request', request_id=resource_request.id) }}">
+
+        <button
+            type="submit"
+            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500">
+
+            Reject Request
+
+        </button>
+
+    </form>
+
+    {% endif %}
+
+
+    {% if resource_request.status == 'Approved' %}
+
+    <form method="post"
+          action="{{ url_for('requests.allocate_request', request_id=resource_request.id) }}">
+
+        <button
+            type="submit"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">
+
+            Allocate Resources
+
+        </button>
+
+    </form>
+
+    {% endif %}
+
+
+    {% if resource_request.status in ['Pending', 'Approved', 'Allocated'] %}
+
+    <form method="post"
+          action="{{ url_for('requests.cancel_request', request_id=resource_request.id) }}">
+
+        <button
+            type="submit"
+            class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500">
+
+            Cancel Request
+
+        </button>
+
+    </form>
+
+    {% endif %}
+
+
+    <a href="{{ url_for('requests.list_requests') }}"
+       class="border px-4 py-2 rounded hover:bg-gray-100">
+
+        Back to Requests
+
+    </a>
+
+</div>
+
+{% endblock %}

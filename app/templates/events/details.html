@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.name }}{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-semibold">{{ event.name }}</h1>
+  <span class="px-3 py-1 rounded text-sm bg-gray-200">{{ event.status }}</span>
+</div>
+
+<div class="bg-white rounded shadow p-6 grid grid-cols-2 gap-4 mb-6 text-sm">
+  <p><span class="text-gray-500">Organizer:</span> {{ event.organizer }}</p>
+  <p><span class="text-gray-500">Expected Attendance:</span> {{ event.expected_attendance }}</p>
+  <p><span class="text-gray-500">Start:</span> {{ event.start_time.strftime('%d %b %Y, %I:%M %p') }}</p>
+  <p><span class="text-gray-500">End:</span> {{ event.end_time.strftime('%d %b %Y, %I:%M %p') }}</p>
+</div>
+
+<div class="flex flex-wrap gap-2 mb-6">
+  <a href="{{ url_for('events.edit_event', event_id=event.id) }}" class="px-3 py-2 rounded border text-sm">Edit</a>
+
+  {% if event.status == 'Draft' %}
+  <form method="post" action="{{ url_for('events.submit_event', event_id=event.id) }}">
+    <button class="bg-blue-600 text-white px-3 py-2 rounded text-sm">Submit for Approval</button>
+  </form>
+  {% endif %}
+
+  {% if event.status == 'Pending' %}
+  <form method="post" action="{{ url_for('events.approve_event', event_id=event.id) }}">
+    <button class="bg-green-600 text-white px-3 py-2 rounded text-sm">Approve</button>
+  </form>
+  <form method="post" action="{{ url_for('events.reject_event', event_id=event.id) }}">
+    <button class="bg-red-600 text-white px-3 py-2 rounded text-sm">Reject</button>
+  </form>
+  {% endif %}
+
+  {% if event.status == 'Approved' %}
+  <a href="{{ url_for('requests.new_request', event_id=event.id) }}" class="bg-indigo-600 text-white px-3 py-2 rounded text-sm">Request Resources</a>
+  <form method="post" action="{{ url_for('events.complete_event', event_id=event.id) }}">
+    <button class="bg-gray-700 text-white px-3 py-2 rounded text-sm">Mark Completed</button>
+  </form>
+  {% endif %}
+
+  {% if event.status not in ['Cancelled', 'Completed'] %}
+  <form method="post" action="{{ url_for('events.cancel_event', event_id=event.id) }}" onsubmit="return confirm('Cancel this event? Related resource requests will be released.');">
+    <button class="bg-red-100 text-red-700 px-3 py-2 rounded text-sm">Cancel Event</button>
+  </form>
+  {% endif %}
+</div>
+
+<div class="bg-white rounded shadow p-4">
+  <h2 class="font-semibold mb-3">Resource Requests</h2>
+  {% if event.requests %}
+  <table class="w-full text-sm">
+    <thead class="text-left text-gray-500"><tr><th class="py-2">Time</th><th>Resources</th><th>Status</th><th></th></tr></thead>
+    <tbody class="divide-y">
+      {% for r in event.requests %}
+      <tr>
+        <td class="py-2">{{ r.start_time.strftime('%d %b, %I:%M %p') }} – {{ r.end_time.strftime('%I:%M %p') }}</td>
+        <td>{% for i in r.items %}{{ i.resource.name }} (x{{ i.quantity }}){% if not loop.last %}, {% endif %}{% endfor %}</td>
+        <td><span class="px-2 py-1 rounded text-xs bg-gray-100">{{ r.status }}</span></td>
+        <td><a href="{{ url_for('requests.request_details', request_id=r.id) }}" class="text-blue-600 hover:underline">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="text-gray-400 text-sm">No resource requests yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

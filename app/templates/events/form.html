@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit Event' if event else 'New Event' }}{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">{{ 'Edit Event' if event else 'New Event' }}</h1>
+
+<form method="post" class="bg-white rounded shadow p-6 max-w-xl space-y-4">
+  <div>
+    <label class="block text-sm font-medium mb-1">Event Name</label>
+    <input type="text" name="name" value="{{ values.get('name', '') }}" class="w-full border rounded px-3 py-2" required>
+  </div>
+  <div>
+    <label class="block text-sm font-medium mb-1">Organizer</label>
+    <input type="text" name="organizer" value="{{ values.get('organizer', '') }}" class="w-full border rounded px-3 py-2" required>
+  </div>
+  <div>
+    <label class="block text-sm font-medium mb-1">Expected Attendance</label>
+    <input type="number" name="expected_attendance" min="1" value="{{ values.get('expected_attendance', '') }}" class="w-full border rounded px-3 py-2" required>
+  </div>
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium mb-1">Start Date/Time</label>
+      <input type="datetime-local" name="start_time" value="{{ values.get('start_time', '') }}" class="w-full border rounded px-3 py-2" required>
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">End Date/Time</label>
+      <input type="datetime-local" name="end_time" value="{{ values.get('end_time', '') }}" class="w-full border rounded px-3 py-2" required>
+    </div>
+  </div>
+  <div class="flex gap-3 pt-2">
+    <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">Save Event</button>
+    <a href="{{ url_for('events.list_events') }}" class="px-4 py-2 rounded border">Cancel</a>
+  </div>
+</form>
+{% endblock %}

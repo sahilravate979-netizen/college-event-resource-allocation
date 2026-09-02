@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Resources{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-semibold">Resources</h1>
+  <a href="{{ url_for('resources.new_resource') }}" class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-500">+ Add Resource</a>
+</div>
+
+<form method="get" class="bg-white rounded shadow p-4 mb-4 flex flex-wrap gap-3 items-end text-sm">
+  <div>
+    <label class="block text-gray-500 mb-1">Type</label>
+    <select name="type" class="border rounded px-2 py-1">
+      <option value="">All</option>
+      {% for t in types %}
+      <option value="{{ t }}" {{ 'selected' if current_type == t }}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="block text-gray-500 mb-1">Status</label>
+    <select name="active" class="border rounded px-2 py-1">
+      <option value="">All</option>
+      <option value="yes" {{ 'selected' if current_active == 'yes' }}>Active</option>
+      <option value="no" {{ 'selected' if current_active == 'no' }}>Inactive</option>
+    </select>
+  </div>
+  <button class="bg-slate-700 text-white px-3 py-1 rounded">Filter</button>
+</form>
+
+<div class="bg-white rounded shadow overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-100 text-left">
+      <tr><th class="p-3">Name</th><th class="p-3">Type</th><th class="p-3">Capacity</th><th class="p-3">Quantity</th><th class="p-3">Status</th><th class="p-3"></th></tr>
+    </thead>
+    <tbody class="divide-y">
+      {% for r in resources %}
+      <tr>
+        <td class="p-3">{{ r.name }}</td>
+        <td class="p-3">{{ r.type }}</td>
+        <td class="p-3">{{ r.capacity if r.capacity else '—' }}</td>
+        <td class="p-3">{{ r.total_quantity }}</td>
+        <td class="p-3">
+          <span class="px-2 py-1 rounded text-xs {{ 'bg-green-100 text-green-700' if r.is_active else 'bg-red-100 text-red-700' }}">
+            {{ 'Active' if r.is_active else 'Inactive' }}
+          </span>
+        </td>
+        <td class="p-3 text-right space-x-2">
+          <a href="{{ url_for('resources.edit_resource', resource_id=r.id) }}" class="text-blue-600 hover:underline">Edit</a>
+          <form method="post" action="{{ url_for('resources.toggle_resource', resource_id=r.id) }}" class="inline">
+            <button class="text-sm {{ 'text-red-600' if r.is_active else 'text-green-600' }} hover:underline">
+              {{ 'Deactivate' if r.is_active else 'Activate' }}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="p-4 text-center text-gray-400">No resources found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
